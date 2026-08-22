@@ -1,3 +1,9 @@
+Historical first-pass prompt. For a paste-ready rebuild prompt that matches
+this repository (natives, asar overlay, AppImage --no-sandbox), use
+BUILD-PROMPT.md instead.
+
+---
+
 Here is a detailed, self-contained prompt you can paste directly into **Grok Build**:
 
 ---

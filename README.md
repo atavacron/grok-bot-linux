@@ -8,9 +8,13 @@ itself remains proprietary.
 
 **Download:** [Releases](https://github.com/atavacron/grok-bot-linux/releases/latest)
 
-This AppImage was built with **Grok Build Heavy**. It was scanned on
+This AppImage was built with **Grok 4.6 (high)** in Grok Build
+(**222K / 500K** tokens used). It was scanned on
 [VirusTotal](https://www.virustotal.com/gui/file-analysis/MGVkNTRmZmZlZWVkNGMzN2E5YTMyYWYxM2M2ODY0NmQ6MTc4NzM3NDg1Ng==)
 (SHA-256 `ab722d9385fddc4ea0c28c8402affe3853665ed00fb0bab27bc3dfade2db8e86`).
+
+To rebuild it yourself, paste [BUILD-PROMPT.md](BUILD-PROMPT.md) into a new
+Grok Build session (or run `./scripts/port.sh <version>` from this repo).
 
 **Warning:** the AppImage always launches Chromium with `--no-sandbox`. That
 flag is built into `AppRun`; you do not pass it, and you cannot turn it off
@@ -111,6 +115,14 @@ Artifacts land in `dist/`:
 
 Override Electron with `--electron-version` / `--electron-abi`. Downloads are
 cached in `.cache/`.
+
+### Rebuild with Grok Build
+
+Paste the full prompt in [BUILD-PROMPT.md](BUILD-PROMPT.md) into a new Grok
+Build session. That text is what produced this 0.24.0 AppImage with
+**Grok 4.6 (high)** (222K / 500K tokens). It includes the native-module,
+asar-overlay, and `--no-sandbox` pitfalls you will hit if you start from a
+blank tree.
 
 ## Troubleshooting
 

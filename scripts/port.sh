@@ -443,7 +443,8 @@ make_tarball() {
   local staged="$1" name="$2"
   mkdir -p "${OUTDIR}"
   local tarpath="${OUTDIR}/${name}.tar.gz"
-  tar -czf "${tarpath}" -C "$(dirname "${staged}")" "$(basename "${staged}")"
+  tar --owner=0 --group=0 --numeric-owner -czf "${tarpath}" \
+    -C "$(dirname "${staged}")" "$(basename "${staged}")"
   log "tarball $(du -h "${tarpath}" | cut -f1)  ${tarpath}"
   printf '%s\n' "${tarpath}"
 }
@@ -608,7 +609,11 @@ exit 0
 EOF
   chmod 755 "${root}/DEBIAN/postinst"
   local deb="${OUTDIR}/grok-bot_${version}_amd64.deb"
-  if dpkg-deb --build "${root}" "${deb}" >/dev/null; then
+  local dpkg_build=(dpkg-deb --build "${root}" "${deb}")
+  if command -v fakeroot >/dev/null 2>&1; then
+    dpkg_build=(fakeroot dpkg-deb --build "${root}" "${deb}")
+  fi
+  if "${dpkg_build[@]}" >/dev/null; then
     log "deb $(du -h "${deb}" | cut -f1)  ${deb}"
     printf '%s\n' "${deb}"
   else

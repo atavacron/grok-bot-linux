@@ -46,6 +46,12 @@ Pixelmatix Aurora (bootloader)
 
 A real leak would look like `/home/<user>/…`, `<user>@<host>`, or a machine hostname baked into a binary. None of those patterns are in this AppImage.
 
+## Other release archives
+
+The AppImage squashfs is stored as uid/gid `0` (root), with no Unix login name.
+
+The `.tar.gz` and `.deb` on the release are packed with **numeric owner `0/0`** (or `root/root`). They do not store a local login name in the archive headers.
+
 ## Runtime (not in the file)
 
 When the app runs, Electron stores session data under the **current user’s** `~/.config/Grok Bot`. That directory is created on the machine that launches it. It is not packed into the AppImage.

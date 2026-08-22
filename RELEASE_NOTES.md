@@ -4,7 +4,7 @@ Not affiliated with xAI or Cursor. Grok Bot remains proprietary; this release on
 
 Built with **Grok 4.6 (high)** in Grok Build (**222K / 500K** tokens). To rebuild it yourself, paste [BUILD-PROMPT.md](https://github.com/atavacron/grok-bot-linux/blob/main/BUILD-PROMPT.md) into a new Grok Build session.
 
-AppImage scanned on [VirusTotal](https://www.virustotal.com/gui/file-analysis/MGVkNTRmZmZlZWVkNGMzN2E5YTMyYWYxM2M2ODY0NmQ6MTc4NzM3NDg1Ng==) (SHA-256 `ab722d9385fddc4ea0c28c8402affe3853665ed00fb0bab27bc3dfade2db8e86`).
+AppImage scanned on [VirusTotal](https://www.virustotal.com/gui/file-analysis/MGVkNTRmZmZlZWVkNGMzN2E5YTMyYWYxM2M2ODY0NmQ6MTc4NzM3NDg1Ng==) (SHA-256 `ab722d9385fddc4ea0c28c8402affe3853665ed00fb0bab27bc3dfade2db8e86`). [String audit](https://github.com/atavacron/grok-bot-linux/blob/main/docs/string-audit.md) (word hits for “spock” / “aurora” are emoji and product names, not builder identity).
 
 **Warning:** the AppImage always runs with `--no-sandbox` (baked into `AppRun`). Chromium renderer processes use your user privileges. Prefer the tarball plus a setuid `chrome-sandbox` if you need the sandbox.
 

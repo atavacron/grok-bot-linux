@@ -1,0 +1,17 @@
+.cache/
+dist/
+work/
+node_modules/
+*.exe
+*.dll
+*.AppImage
+*.tar.gz
+*.deb
+*.rpm
+*.asar
+*.node
+!scripts/native/**
+.DS_Store
+*.log
+squashfs-root/
+AppDir/

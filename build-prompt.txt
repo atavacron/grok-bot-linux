@@ -1,0 +1,100 @@
+Here is a detailed, self-contained prompt you can paste directly into **Grok Build**:
+
+---
+
+**Prompt for Grok Build:**
+
+Create a complete, production-quality Linux packaging system for the official **Grok Bot** desktop application (the Electron-based Grok Bot distributed by Cursor/xAI).
+
+### Goal
+Produce a **wine-less** Linux port of Grok Bot that works on **Ubuntu** (primary target) and is portable to **any modern Linux distribution** (AppImage preferred for maximum compatibility).
+
+The official product only ships Windows and macOS builds. We must take the official Windows NSIS installer, extract the application payload without Wine, fuse it with a clean Linux Electron binary, rebuild the native Node modules for Linux, and package the result.
+
+### High-level architecture (follow this pattern closely)
+
+1. **Version detection**
+   - Upstream does not publish a proper `latest.yml` or directory listing for Grok Bot.
+   - Implement a robust HEAD-probing script that tests candidate versions against:
+     `https://downloads.cursor.com/grokbot/stable/win32-x64/<version>/Grok_Bot_<version>_Setup.exe`
+   - Find the highest version that returns HTTP 200 and is newer than the currently packaged version.
+   - Store the current version in a simple `VERSION` file.
+
+2. **Core porting script (`scripts/port.sh`)**
+   Accept a version number as argument (e.g. `./scripts/port.sh 0.24.0`).
+
+   Steps the script must perform:
+
+   a. Download the official Windows installer:
+      `Grok_Bot_${VERSION}_Setup.exe`
+
+   b. Extract it **without Wine** using `7z` (p7zip):
+      - First extract the NSIS installer.
+      - Recursively locate the nested `app-64.7z` (it is often inside `$PLUGINSDIR` or similar).
+      - Extract that archive to obtain the real Electron application payload (`resources/app.asar`, `app.asar.unpacked`, locales, etc.).
+
+   c. Download the matching official **Electron Linux binary** (currently Electron 42.1.0 linux-x64 — make the Electron version configurable).
+
+   d. Merge:
+      - Replace the Windows Electron binary with the Linux one.
+      - Keep the entire `resources/` tree from the Windows build.
+      - Rename the final binary to `grok-bot`.
+
+   e. Rebuild native modules for Linux:
+      - Identify the native addons (currently includes `better-sqlite3`, `tree-sitter` and others).
+      - Use `@electron/rebuild` against the exact Electron version so all `.node` files become proper Linux ELF binaries.
+      - Fail loudly if any loadable `.node` file remains a Windows PE (MZ header).
+
+   f. Fix Chromium sandbox:
+      - Set `chrome-sandbox` ownership to root and mode `4755` (setuid) so the app can run without `--no-sandbox`.
+
+   g. Produce two artifacts:
+      - `Grok_Bot_${VERSION}_linux_x64.tar.gz` — clean portable directory.
+      - `Grok_Bot_${VERSION}_x86_64.AppImage` — best-effort AppImage (use AppDir + `appimagetool` when available; make it optional so the build still succeeds without AppImage tooling).
+
+3. **Packaging targets**
+   - Primary: portable tarball that works on Ubuntu 22.04 / 24.04 / 26.04 and most other modern distros.
+   - Secondary: AppImage (the preferred “any distro” format).
+   - Bonus (nice to have): generate a simple `.deb` for Ubuntu/Debian and optionally an `.rpm`.
+
+4. **Automation / CI**
+   - GitHub Actions workflow that:
+     - Runs daily (or on demand).
+     - Detects a new upstream version.
+     - Builds the Linux artifacts.
+     - Creates a GitHub Release with the tarball + AppImage.
+     - Updates the `VERSION` file and any packaging metadata.
+   - Make the build fully reproducible and non-interactive.
+
+5. **Requirements & constraints**
+   - Never commit proprietary Grok Bot binaries or source into the repository. All app content must be downloaded and processed at build time.
+   - The repository itself should only contain scripts, CI, packaging files, and documentation.
+   - Use only freely available tools: `7z`/`p7zip`, `curl`, Node.js 22+, `@electron/rebuild`, `asar`, `appimagetool` (optional), etc.
+   - Handle the `chrome-sandbox` setuid requirement cleanly and document how users should launch the app.
+   - Make Electron version a configurable variable (default to the version currently used by upstream Grok Bot).
+   - Add clear troubleshooting notes for common failures (7z missing, sandbox permissions, native rebuild failures, etc.).
+
+6. **Documentation**
+   - Clear README explaining:
+     - Why this exists (no official Linux build).
+     - How the porting process works (high-level).
+     - How to install the tarball or AppImage on Ubuntu and other distros.
+     - How to build locally.
+     - License note: this is a packaging project; Grok Bot itself remains proprietary.
+
+### Deliverables
+Produce a complete, working repository structure with:
+- `scripts/detect-version.sh`
+- `scripts/port.sh` (the main workhorse)
+- GitHub Actions workflow for automatic updates
+- `VERSION` file
+- README with install + build instructions
+- Optional: basic `.deb` generation and/or AppImage creation logic
+
+Focus first on making a rock-solid portable tarball + AppImage that runs on Ubuntu and general Linux. Packaging for specific distros can come second.
+
+Start by implementing the core `port.sh` logic and the version detection, then add the CI and packaging layers.
+
+---
+
+You can paste the entire block above into Grok Build. It is deliberately detailed so the agent has enough concrete technical guidance to recreate (and potentially improve on) the existing community approach.

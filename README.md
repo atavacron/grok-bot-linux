@@ -8,6 +8,15 @@ itself remains proprietary.
 
 **Download:** [Releases](https://github.com/atavacron/grok-bot-linux/releases/latest)
 
+This AppImage was built with **Grok Build Heavy**. It was scanned on
+[VirusTotal](https://www.virustotal.com/gui/file-analysis/MGVkNTRmZmZlZWVkNGMzN2E5YTMyYWYxM2M2ODY0NmQ6MTc4NzM3NDg1Ng==)
+(SHA-256 `ab722d9385fddc4ea0c28c8402affe3853665ed00fb0bab27bc3dfade2db8e86`).
+
+**Warning:** the AppImage always launches Chromium with `--no-sandbox`. That
+flag is built into `AppRun`; you do not pass it, and you cannot turn it off
+by omitting it. Renderer processes then run with your user privileges. Use
+the tarball with a setuid `chrome-sandbox` if you want the sandbox.
+
 This build is **x86_64** and needs **glibc 2.38+** (Ubuntu 24.04+, Fedora 40+,
 Arch, Debian 13). Ubuntu 22.04 and Debian 12 are too old for this image.
 
@@ -20,8 +29,7 @@ chmod +x Grok_Bot_0.24.0_x86_64.AppImage
 ./Grok_Bot_0.24.0_x86_64.AppImage
 ```
 
-`--no-sandbox` is already baked into the AppImage. Needs FUSE (`/dev/fuse`).
-If FUSE is missing:
+Needs FUSE (`/dev/fuse`). If FUSE is missing:
 
 ```bash
 ./Grok_Bot_0.24.0_x86_64.AppImage --appimage-extract

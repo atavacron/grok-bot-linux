@@ -134,6 +134,13 @@ blank tree.
 | `node-gyp` fails on cursor-proclist | Need `g++`, `make`, and Python 3.12 (conda/pyenv Pythons 3.13+ can break node-gyp). |
 | AppImage not produced | Install `squashfs-tools` and `appimagetool`. The tarball still builds. |
 
+## Issues
+
+**Issues are welcome. Pull requests are not accepted.** GitHub always lets
+people open a PR against a public repo; those PRs are closed automatically.
+Please use [Issues](https://github.com/atavacron/grok-bot-linux/issues) for
+bugs, questions, and distro reports.
+
 ## License
 
 Scripts in this repository are available for reuse as packaging glue.

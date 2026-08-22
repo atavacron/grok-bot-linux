@@ -15,8 +15,10 @@ Built with **Grok Build Heavy**. AppImage scanned on [VirusTotal](https://www.vi
 
 **Requirements**
 
-- CPU: x86_64
-- libc: glibc 2.38+ (Ubuntu 24.04+, Fedora 40+, Arch, Debian 13). Ubuntu 22.04 / Debian 12 will not load this build.
+- CPU: x86_64 (64-bit Intel/AMD). Not ARM.
+- libc: glibc 2.38 or newer.
+- **Should work on:** Ubuntu 24.04 / 25.04 / 26.04, Linux Mint 22, Pop!_OS 24.04, Fedora 40+, Arch Linux, Debian 13, openSUSE Tumbleweed, and other current glibc desktop distros.
+- **Will not work on:** Ubuntu 22.04, Debian 12, RHEL/Rocky/Alma 9, Alpine (musl), ARM.
 - AppImage: FUSE. If `/dev/fuse` is missing, use `--appimage-extract`.
 
 If an older Grok Bot is already running, quit it before launching this one. They share the same Electron app id and the new process will only focus the old window.

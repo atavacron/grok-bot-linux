@@ -17,8 +17,14 @@ flag is built into `AppRun`; you do not pass it, and you cannot turn it off
 by omitting it. Renderer processes then run with your user privileges. Use
 the tarball with a setuid `chrome-sandbox` if you want the sandbox.
 
-This build is **x86_64** and needs **glibc 2.38+** (Ubuntu 24.04+, Fedora 40+,
-Arch, Debian 13). Ubuntu 22.04 and Debian 12 are too old for this image.
+This build is **x86_64** (64-bit Intel/AMD) and needs **glibc 2.38 or newer**.
+
+**Should work on:** Ubuntu 24.04 / 25.04 / 26.04, Linux Mint 22, Pop!_OS 24.04,
+Fedora 40+, Arch Linux, Debian 13, openSUSE Tumbleweed, and other current
+glibc desktop distros.
+
+**Will not work on:** Ubuntu 22.04, Debian 12, RHEL/Rocky/Alma 9, Alpine
+(musl), or ARM (Raspberry Pi, Apple Silicon VMs, aarch64).
 
 ## Install
 

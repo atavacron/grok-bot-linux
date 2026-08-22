@@ -10,7 +10,14 @@ AppImage scanned on [VirusTotal](https://www.virustotal.com/gui/file-analysis/MG
 
 **Artifacts**
 
-- `Grok_Bot_0.24.0_x86_64.AppImage` — double-click / `chmod +x` and run. `--no-sandbox` is **on** and cannot be omitted.
+- `Grok_Bot_0.24.0_x86_64.AppImage` — make it executable, then run (`--no-sandbox` is **on** and cannot be omitted):
+
+```bash
+chmod +x Grok_Bot_*.AppImage
+./Grok_Bot_*.AppImage
+```
+
+  In the file manager: Properties → Permissions → **Executable as Program**.
 - `Grok_Bot_0.24.0_linux_x64.tar.gz` — portable tree; optional `sudo chown root:root chrome-sandbox && sudo chmod 4755 chrome-sandbox` for a real Chromium sandbox.
 - `grok-bot_0.24.0_amd64.deb` — Debian/Ubuntu package.
 - `SHA256SUMS` — checksums for the three files above.

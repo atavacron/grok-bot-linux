@@ -34,15 +34,23 @@ glibc desktop distros.
 
 ### AppImage (easiest)
 
+Make it executable, then run it:
+
 ```bash
-chmod +x Grok_Bot_0.24.0_x86_64.AppImage
-./Grok_Bot_0.24.0_x86_64.AppImage
+chmod +x Grok_Bot_*.AppImage
+./Grok_Bot_*.AppImage
 ```
+
+Or in the file manager: right-click the AppImage → **Properties** →
+**Permissions** → turn on **Executable as Program**.
+
+![Mark the AppImage executable as a program](docs/executable-as-program.png)
 
 Needs FUSE (`/dev/fuse`). If FUSE is missing:
 
 ```bash
-./Grok_Bot_0.24.0_x86_64.AppImage --appimage-extract
+chmod +x Grok_Bot_*.AppImage
+./Grok_Bot_*.AppImage --appimage-extract
 ./squashfs-root/AppRun
 ```
 

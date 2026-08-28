@@ -4,8 +4,6 @@ Not affiliated with xAI or Cursor. Grok Bot remains proprietary; this release on
 
 To rebuild it yourself, paste [BUILD-PROMPT.md](https://github.com/atavacron/grok-bot-linux/blob/main/BUILD-PROMPT.md) into a new Grok Build session, or run `./scripts/port.sh 0.30.0` with `originals/Grok_Bot_0.30.0_Setup.exe` present.
 
-[String audit](https://github.com/atavacron/grok-bot-linux/blob/main/docs/string-audit.md) (word hits for “spock” / “aurora” are emoji and product names, not builder identity).
-
 **Warning:** the AppImage always runs with `--no-sandbox` (baked into `AppRun`). Chromium renderer processes use your user privileges. Prefer the tarball plus a setuid `chrome-sandbox` if you need the sandbox.
 
 **Artifacts**

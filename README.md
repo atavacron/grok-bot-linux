@@ -8,11 +8,8 @@ itself remains proprietary.
 
 **Download:** [Releases](https://github.com/atavacron/grok-bot-linux/releases/latest)
 
-This AppImage was built with **Grok 4.6 (high)** in Grok Build
-(**222K / 500K** tokens used). It was scanned on
-[VirusTotal](https://www.virustotal.com/gui/file-analysis/MGVkNTRmZmZlZWVkNGMzN2E5YTMyYWYxM2M2ODY0NmQ6MTc4NzM3NDg1Ng==)
-(SHA-256 `ab722d9385fddc4ea0c28c8402affe3853665ed00fb0bab27bc3dfade2db8e86`).
-String audit of the AppImage (including the words “spock” and “aurora”):
+Current packaged version: **0.30.0**. String audit of the AppImage
+(including the words “spock” and “aurora”):
 [docs/string-audit.md](docs/string-audit.md).
 
 To rebuild it yourself, paste [BUILD-PROMPT.md](BUILD-PROMPT.md) into a new
@@ -65,8 +62,8 @@ The AppImage cannot ship a setuid `chrome-sandbox`. Use the tarball if you
 want the Chromium sandbox:
 
 ```bash
-tar -xzf Grok_Bot_0.24.0_linux_x64.tar.gz
-cd Grok_Bot_0.24.0_linux_x64
+tar -xzf Grok_Bot_0.30.0_linux_x64.tar.gz
+cd Grok_Bot_0.30.0_linux_x64
 sudo chown root:root chrome-sandbox && sudo chmod 4755 chrome-sandbox
 ./grok-bot
 ```
@@ -80,7 +77,7 @@ Without the setuid sandbox:
 ### Debian package (optional)
 
 ```bash
-sudo dpkg -i grok-bot_0.24.0_amd64.deb
+sudo dpkg -i grok-bot_0.30.0_amd64.deb
 ```
 
 ## How it works
@@ -98,13 +95,13 @@ a normal Electron application tree.
 So the “app core” (the asar) *is* used without change. The Windows executable
 and native addons are not portable; those are the only pieces we replace.
 
-Native addons in 0.24.0:
+Native addons in 0.30.0 (from the Windows `runtime-deps-manifest.json`):
 
-- `better-sqlite3` — official Electron linux-x64 prebuild
+- `cursor-proclist` — Linux `/proc` implementation (Windows tree ships the JS wrapper, not the `.cc` files)
 - `tree-sitter`, `tree-sitter-bash` — npm linux-x64 prebuilds
-- `whichlang-node` — `whichlang-node-linux-x64-gnu` from npm
-- `cursor-proclist` — Linux `/proc` implementation (Windows tree ships the header and JS wrapper, not the `.cc` files)
-- `@anysphere/tree-chunk-napi` — private crate, no Linux binary published; a loadable N-API stub so the host process can start
+- `web-tree-sitter` — WASM, copied unchanged
+
+0.24.0 also shipped `better-sqlite3`, `whichlang-node`, and `@anysphere/tree-chunk-napi`. Those modules are gone from the 0.29+ payload, so they are not rebuilt. Hardware WebAuthn uses a Windows-only `sand-webauthn-signer.exe`; Linux looks for `sand-webauthn-signer` and will skip that helper if it is missing.
 
 ## Build locally
 
@@ -114,7 +111,7 @@ AppImage output also needs `squashfs-tools` and `appimagetool`.
 
 ```bash
 ./scripts/detect-version.sh          # HEAD-probe for a newer installer
-./scripts/port.sh 0.24.0             # download, fuse, rebuild, package
+./scripts/port.sh 0.30.0             # local originals/ or download, fuse, rebuild, package
 ```
 
 Artifacts land in `dist/`:
@@ -129,10 +126,8 @@ cached in `.cache/`.
 ### Rebuild with Grok Build
 
 Paste the full prompt in [BUILD-PROMPT.md](BUILD-PROMPT.md) into a new Grok
-Build session. That text is what produced this 0.24.0 AppImage with
-**Grok 4.6 (high)** (222K / 500K tokens). It includes the native-module,
-asar-overlay, and `--no-sandbox` pitfalls you will hit if you start from a
-blank tree.
+Build session. If `originals/Grok_Bot_<ver>_Setup.exe` is present, `port.sh`
+uses that file instead of downloading.
 
 ## Troubleshooting
 
@@ -143,6 +138,7 @@ blank tree.
 | `invalid ELF header` / crash on `.node` | A Windows PE addon slipped through. Rebuild with `./scripts/port.sh <ver>` and do **not** set `GROKBOT_ALLOW_BROKEN_NATIVE=1`. |
 | `node-gyp` fails on cursor-proclist | Need `g++`, `make`, and Python 3.12 (conda/pyenv Pythons 3.13+ can break node-gyp). |
 | AppImage not produced | Install `squashfs-tools` and `appimagetool`. The tarball still builds. |
+| Security-key / WebAuthn helper missing | Windows ships `sand-webauthn-signer.exe`. Linux looks for `sand-webauthn-signer` and will not find it. Password / browser login still works. |
 
 ## Issues
 

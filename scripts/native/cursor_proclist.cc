@@ -68,16 +68,20 @@ bool read_roots(napi_env env, napi_callback_info info, std::vector<pid_t>& roots
 
 napi_value tuple_from_info(napi_env env, const ProcessInfo& p) {
   napi_value arr;
-  napi_create_array_with_length(env, 8, &arr);
+  // JS wrapper documents:
+  // [pid, ppid, name, extensionId, cpuTimeMs, memoryMB, argv, ownerAgentId, requestId]
+  napi_create_array_with_length(env, 9, &arr);
 
-  napi_value v_pid, v_ppid, v_name, v_ext, v_cpu, v_mem, v_argv, v_owner;
+  napi_value v_pid, v_ppid, v_name, v_ext, v_cpu, v_mem, v_argv, v_owner, v_req;
   napi_create_int64(env, p.pid, &v_pid);
   napi_create_int64(env, p.ppid, &v_ppid);
   napi_create_string_utf8(env, p.name.c_str(), NAPI_AUTO_LENGTH, &v_name);
   napi_create_string_utf8(env, p.extensionId.c_str(), NAPI_AUTO_LENGTH, &v_ext);
-  napi_create_bigint_uint64(env, p.cpuTimeMs, &v_cpu);
-  napi_create_bigint_uint64(env, p.memoryMB, &v_mem);
+  // Host sampler does number arithmetic (memSumMb += p). BigInt throws.
+  napi_create_int64(env, static_cast<int64_t>(p.cpuTimeMs), &v_cpu);
+  napi_create_int64(env, static_cast<int64_t>(p.memoryMB), &v_mem);
   napi_create_string_utf8(env, p.ownerAgentId.c_str(), NAPI_AUTO_LENGTH, &v_owner);
+  napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &v_req);
 
   napi_create_array_with_length(env, p.argv.size(), &v_argv);
   for (size_t i = 0; i < p.argv.size(); ++i) {
@@ -94,6 +98,7 @@ napi_value tuple_from_info(napi_env env, const ProcessInfo& p) {
   napi_set_element(env, arr, 5, v_mem);
   napi_set_element(env, arr, 6, v_argv);
   napi_set_element(env, arr, 7, v_owner);
+  napi_set_element(env, arr, 8, v_req);
   return arr;
 }
 

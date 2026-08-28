@@ -41,7 +41,7 @@ Options:
   -h, --help                Show this help
 
 Example:
-  $(basename "$0") 0.24.0
+  $(basename "$0") 0.30.0
 EOF
 }
 
@@ -635,7 +635,14 @@ main() {
   log "work dir   ${WORKDIR}"
 
   local installer="${CACHE}/Grok_Bot_${GROK_VERSION}_Setup.exe"
-  download "$(printf "${WIN32_TMPL}" "${GROK_VERSION}" "${GROK_VERSION}")" "${installer}"
+  local local_installer="${REPO_ROOT}/originals/Grok_Bot_${GROK_VERSION}_Setup.exe"
+  if [[ -s "${local_installer}" ]]; then
+    mkdir -p "${CACHE}"
+    cp -f "${local_installer}" "${installer}"
+    log "using local originals/$(basename "${local_installer}")"
+  else
+    download "$(printf "${WIN32_TMPL}" "${GROK_VERSION}" "${GROK_VERSION}")" "${installer}"
+  fi
 
   local win_app="${WORKDIR}/win-app"
   extract_windows_payload "${installer}" "${win_app}"
@@ -659,12 +666,42 @@ main() {
   DEPS_ROOT="${staged}/resources/app.asar.unpacked/dist/deps"
   [[ -d "${DEPS_ROOT}" ]] || die "expected native deps at ${DEPS_ROOT}"
 
-  install_better_sqlite "${DEPS_ROOT}/better-sqlite3"
-  rebuild_cursor_proclist "${DEPS_ROOT}/cursor-proclist"
-  install_tree_sitter "${DEPS_ROOT}/tree-sitter"
-  install_tree_sitter_bash "${DEPS_ROOT}/tree-sitter-bash"
-  install_whichlang "${DEPS_ROOT}/whichlang-node"
-  compile_tree_chunk_stub "${DEPS_ROOT}/@anysphere/tree-chunk-napi"
+  if [[ -f "${DEPS_ROOT}/runtime-deps-manifest.json" ]]; then
+    log "runtime-deps-manifest:"
+    cat "${DEPS_ROOT}/runtime-deps-manifest.json" >&2 || true
+  fi
+  log "unpacked deps: $(find "${DEPS_ROOT}" -maxdepth 1 -mindepth 1 -printf '%f ' 2>/dev/null || true)"
+
+  if [[ -d "${DEPS_ROOT}/better-sqlite3" ]]; then
+    install_better_sqlite "${DEPS_ROOT}/better-sqlite3"
+  else
+    log "skipping better-sqlite3 (not in this payload)"
+  fi
+  if [[ -d "${DEPS_ROOT}/cursor-proclist" ]]; then
+    rebuild_cursor_proclist "${DEPS_ROOT}/cursor-proclist"
+  else
+    die "required native cursor-proclist is missing from the Windows payload"
+  fi
+  if [[ -d "${DEPS_ROOT}/tree-sitter" ]]; then
+    install_tree_sitter "${DEPS_ROOT}/tree-sitter"
+  else
+    log "skipping tree-sitter (not in this payload)"
+  fi
+  if [[ -d "${DEPS_ROOT}/tree-sitter-bash" ]]; then
+    install_tree_sitter_bash "${DEPS_ROOT}/tree-sitter-bash"
+  else
+    log "skipping tree-sitter-bash (not in this payload)"
+  fi
+  if [[ -d "${DEPS_ROOT}/whichlang-node" ]]; then
+    install_whichlang "${DEPS_ROOT}/whichlang-node"
+  else
+    log "skipping whichlang-node (not in this payload)"
+  fi
+  if [[ -d "${DEPS_ROOT}/@anysphere/tree-chunk-napi" ]]; then
+    compile_tree_chunk_stub "${DEPS_ROOT}/@anysphere/tree-chunk-napi"
+  else
+    log "skipping @anysphere/tree-chunk-napi (not in this payload)"
+  fi
 
   assert_no_loadable_pe "${staged}/resources/app.asar.unpacked"
   repack_asar_natives "${staged}"

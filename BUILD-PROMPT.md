@@ -1,9 +1,10 @@
 # Prompt to rebuild this (paste into Grok Build)
 
-The 0.24.0 AppImage in Releases was produced with **Grok 4.6 (high)** in
-Grok Build (session used **222K / 500K** tokens). If you want to rebuild
-or retarget a newer Grok Bot version yourself, paste everything below the
-line into a new Grok Build session on an x86_64 Linux host.
+The 0.30.0 AppImage is a wine-less Linux port of the official Windows
+installer. If you want to rebuild or retarget a newer Grok Bot version
+yourself, paste everything below the line into a new Grok Build session
+on an x86_64 Linux host. If `originals/Grok_Bot_<ver>_Setup.exe` exists,
+prefer that file over downloading.
 
 Do not commit installer binaries, `app.asar`, or AppImages into git. Do
 not put local usernames, home directories, hostnames, or env dumps into
@@ -47,31 +48,34 @@ distro” format.
 - Native addons live under `resources/app.asar.unpacked/dist/deps/`, not
   `node_modules`. Running `@electron/rebuild` at the app root finds
   nothing. Drive each module from its `dist/deps/<name>` directory.
-- Observed addons (0.24.x; re-inventory after extract):
-  - `better-sqlite3` — fetch a GitHub prebuild matching Electron’s ABI
-    (Electron 42 → ABI 146). Vendored 12.6.2 has no v146 prebuild; a 12.x
-    v146 linux-x64 prebuild is API-compatible. Install at
-    `build/Release/better_sqlite3.node`.
+- Observed addons (0.30.0; re-inventory after extract via
+  `runtime-deps-manifest.json`):
+  - `cursor-proclist` — private; Windows tree ships the JS wrapper
+    (`cursor_proclist_scan_async` / `cursor_proclist_system_memory`) but
+    strips the `.cc` files. Linux `/proc` implementation. Tuple is
+    `[pid, ppid, name, extensionId, cpuTimeMs, memoryMB, argv, ownerAgentId, requestId]`.
+    `cpuTimeMs` and `memoryMB` must be JS numbers (the host sampler does
+    arithmetic). `system_memory` may return null on Linux. Rebuild with
+    `node-gyp --runtime electron --target <electron> --dist-url https://electronjs.org/headers`.
   - `tree-sitter` / `tree-sitter-bash` — `npm pack` the pinned versions
     and copy `prebuilds/linux-x64/*.node`. **Also** copy the ELF to
     `build/Release/` using the names the asar overlay already lists
     (`tree_sitter_runtime_binding.node`, `tree_sitter_bash_binding.node`).
     Deleting `build/Release` without replacing it makes Electron look on
     disk for an unpacked path that no longer exists and crash.
-  - `whichlang-node` — `npm pack whichlang-node-linux-x64-gnu@<pinned>`
+  - `web-tree-sitter` — WASM + JS; copy unchanged.
+  - Older payloads (0.24.x) also had `better-sqlite3`, `whichlang-node`,
+    and `@anysphere/tree-chunk-napi`. Drive each module **only if its
+    directory exists** under `dist/deps`. Do not invent missing addons.
+  - If `better-sqlite3` is present: fetch a GitHub prebuild matching
+    Electron’s ABI (Electron 42 → ABI 146) and install at
+    `build/Release/better_sqlite3.node`.
+  - If `whichlang-node` is present: `npm pack whichlang-node-linux-x64-gnu@<pinned>`
     and place `whichlang-node.linux-x64-gnu.node` next to `index.js`.
-  - `cursor-proclist` — private; Windows tree ships `binding.gyp`, JS
-    wrapper, and `cursor_proclist.h` but **strips the `.cc` files**.
-    Implement Linux `/proc` against that header (`scan_async` returns
-    `[pid, ppid, name, extensionId, cpuTimeMs, memoryMB, argv, ownerAgentId]`;
-    `system_memory` may return null on Linux). Rebuild with `node-gyp`
-    `--runtime electron --target <electron> --dist-url https://electronjs.org/headers`.
-  - `@anysphere/tree-chunk-napi` — private; no Linux crate. `host-main`
-    `require()`s it at load. Ship a tiny N-API stub named
-    `tree-chunk-napi.linux-x64-gnu.node` exporting empty classes
+  - If `@anysphere/tree-chunk-napi` is present: ship a tiny N-API stub
+    named `tree-chunk-napi.linux-x64-gnu.node` exporting empty classes
     `Chunk`, `ChunkerRouter`, `CompressedFileOutline`, `FileTree`,
-    `PartialFileContext` so the host process starts. Code-chunking
-    features that call the real crate will not work.
+    `PartialFileContext`.
 - Dead PE leftovers that Linux loaders never resolve may remain
   (`prebuilds/win32-*`, `*.win32-*.node`). Fail the build if any other
   `.node` still has an MZ header.
@@ -144,9 +148,11 @@ prompt; license note that Grok Bot is proprietary.
 
 - `file grok-bot` is ELF x86-64.
 - Every loadable `.node` is ELF, not MZ.
-- `ELECTRON_RUN_AS_NODE=1` can `require()` better-sqlite3 (in-memory
-  query), tree-sitter, whichlang, cursor-proclist `scan_async`, and
-  tree-chunk stub.
+- `ELECTRON_RUN_AS_NODE=1` can `require()` every **required** native from
+  the payload’s `runtime-deps-manifest.json` (0.30.0: tree-sitter,
+  tree-sitter-bash, cursor-proclist `cursor_proclist_scan_async`). Set
+  `NODE_PATH` to `resources/app.asar/dist/deps` the same way the host
+  process does.
 - Launch with a **fresh** `--user-data-dir` so an already-running Grok
   Bot does not steal the instance. Main process must get past native
   loads (no `invalid ELF header`, no missing `build/Release/*.node`).
@@ -155,8 +161,9 @@ prompt; license note that Grok Bot is proprietary.
   and local usernames before you push.
 
 Start with version detection and `port.sh`, then CI and docs. Inventory
-natives from the extracted 0.24 (or newer) tree rather than hard-coding
-guesses.
+natives from the extracted tree (and `runtime-deps-manifest.json` when
+present) rather than hard-coding guesses. Prefer
+`originals/Grok_Bot_<ver>_Setup.exe` when that file exists.
 
 ---
 

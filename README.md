@@ -1,12 +1,17 @@
-# Grok Bot for Linux (unofficial)
+# Grok Bot for Linux (unofficial) — archived
 
-xAI ships Grok Bot for Windows and macOS only. This repository builds a
-**wine-less** Linux package (AppImage, tarball, optional `.deb`).
+**This unofficial Linux port is archived.** Cursor / xAI now publish an
+official Linux `.deb` (and other Linux packages) for Grok Bot. Use those
+instead of this repository.
 
-It is a packaging project, not an official xAI or Cursor product. Grok Bot
-itself remains proprietary.
+- Product / downloads: [x.ai/bot](https://x.ai/bot)
+- Official packages are hosted on Cursor’s CDN (`downloads.cursor.com`)
 
-**Download:** [Releases](https://github.com/atavacron/grok-bot-linux/releases/latest)
+This repo was a community wine-less AppImage / tarball / `.deb` packaging
+project, not an official xAI or Cursor product. The rest of this README is
+kept for history.
+
+**Historical downloads:** [Releases](https://github.com/atavacron/grok-bot-linux/releases/latest)
 
 Current packaged version: **0.30.0**. String audit of the AppImage
 (including the words “spock” and “aurora”):
